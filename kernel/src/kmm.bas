@@ -6,15 +6,15 @@ function PageAlloc(count as unsigned integer) as any ptr
     '    KERNEL_ERROR(@"Cannot allocate page",0)
     'end if
     var paddr = PMM_ALLOCPAGE(count)
-    'identity mapping
-    'return vmm_kernel_automap(paddr,PAGE_SIZE*count,VMM_FLAGS_KERNEL_DATA)
-    return paddr
+    'map to kernel address space
+    return vmm_kernel_automap(paddr,PAGE_SIZE*count,VMM_FLAGS_KERNEL_DATA)
+    'return paddr
 end function
 
 sub PageFree(addr as any ptr)
     var paddr = current_context->resolve(addr)
     var count = PMM_FREE(paddr)
-    'vmm_kernel_unmap(addr,PAGE_SIZE*count)
+    vmm_kernel_unmap(addr,PAGE_SIZE*count)
 end sub
 
 

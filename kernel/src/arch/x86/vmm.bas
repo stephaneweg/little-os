@@ -40,8 +40,8 @@ sub VMM_INIT()
     current_context = @kernel_context
     
     kernel_context.p_dir[VMM_PAGETABLES_VIRT_START shr 22] = cuint(kernel_context.p_dir) or VMM_FLAG_PRESENT or VMM_FLAG_WRITEABLE
-    'kernel_context.map_range(KSTART, KSTART, KEND, VMM_FLAGS_KERNEL_DATA)
-    kernel_context.map_range(KSTART, KSTART, MemoryEnd, VMM_FLAGS_KERNEL_DATA)
+    kernel_context.map_range(KSTART, KSTART, KEND, VMM_FLAGS_KERNEL_DATA)
+    'kernel_context.map_range(KSTART, KSTART, MemoryEnd, VMM_FLAGS_KERNEL_DATA)
     kernel_context.map_page(cast(any ptr, &hB8000), cast(any ptr, &hB8000), VMM_FLAGS_KERNEL_DATA)
     kernel_context.v_dir = cast(uinteger ptr, (VMM_PAGETABLES_VIRT_START shr 22)*4096*1024 + (VMM_PAGETABLES_VIRT_START shr 22)*4096)
     kernel_context.map_page(cast(any ptr, RealModeAddr), cast(any ptr, RealModeAddr), VMM_FLAGS_KERNEL_DATA)
@@ -206,8 +206,11 @@ function VMMContext.automap (p_start as any ptr, size as unsigned integer, lower
 	dim vaddr as unsigned integer = this.find_free_pages(num_pages(aligned_bytes), lowerLimit, upperLimit)
 
 	'' not enough free pages found?
-	if (vaddr = 0) then return 0
-
+	if (vaddr = 0) then 
+        KERNEL_ERROR(@"No free pages found",0)
+        return 0
+    end if
+    
 	'' map the pages
 	this.map_range(cast(any ptr, vaddr), cast(any ptr, aligned_addr), cast(any ptr, aligned_addr+aligned_bytes), flags)
 

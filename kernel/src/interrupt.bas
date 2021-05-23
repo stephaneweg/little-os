@@ -86,7 +86,73 @@ function int_handler(stack as irq_stack ptr) as irq_stack ptr
         if (handler <>@DefaultIrqHandler) then
             returnStack = handler(stack)
         else
-                if (intno = &hE) then
+            select case intno
+            case &h0
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Divide by zero",0)
+            case &h1
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"DEBUG",0)
+            case &h2
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"NON Maskable interupt",0)
+            case &h3
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Break point",0)
+            case &h4
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"OverFlow",0)
+            case &h5
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Bound range exceeded",0)
+            case &h6
+                    'kernel_context.ACTIVATE()
+                    '
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    'VMM_INIT_Local()
+                    ''var nstack = cptr(IRQ_STACK ptr,kernel_context.resolve(stack))
+                    'ConsoleSetBackGround(4)
+                    'ConsoleSetForeground(15)
+                    'ConsoleClear()
+                    'ConsoleWrite(@"Invalid IPCode")
+                    'ConsoleWriteTextAndDec(@"Code : ",stack->errCode,true)
+                    'ConsoleWriteTextAndHex(@"Current Thread ID : ",SCheduler.CurrentRuningThread->ID,true)
+                    'stack->DUMP()
+                    KERNEL_ERROR(@"INVALID OPCODE",0)
+                    asm cli
+                    do:loop
+            case &h7
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Device not available",0)
+            case &h8
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Double fault",0)
+            case &hA
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Invalid TSS",0)
+            case &hB
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Segment not present",0)
+            case &hC
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Stack segment fault",0)
+            case &hD
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"General Protection fault",0)
+            case &hE
                     VMM_EXIT()
                     VesaResetScreen()
                     ConsoleWrite(@"Page fault")
@@ -99,11 +165,32 @@ function int_handler(stack as irq_stack ptr) as irq_stack ptr
                     ConsoleWriteTextAndHex(@"CR2 : ",acr2,true)
                     ConsoleWriteTextAndHex(@"PHYS : ",cuint(current_context->RESOLVE(cptr(any ptr,acr2 ))),true)
                     ConsoleWriteTextAndHex(@"Current Thread ID : ",SCheduler.CurrentRuningThread->ID,true)
-                    'do:loop
-                end if
-                if (intno =13) then
-                    KERNEL_ERROR(@"General Protection fault",0)
-                end if
+                    do:loop
+            case &h10
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Floating point exception",0)
+            case &h11
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Alignment check",0)
+            case &h12
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Machine check",0)
+            case &h13
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"SIMD Floating-point exception",0)
+            case &h14
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Virtualization exception",0)
+            case &h1E
+                    VMM_EXIT()
+                    VesaResetScreen()
+                    KERNEL_ERROR(@"Security exception",0)
+            end select
         end if
     end if
 	ReceivedInt=intno

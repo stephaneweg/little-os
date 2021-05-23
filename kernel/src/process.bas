@@ -44,7 +44,7 @@ end function
 function Process.SBRK(pagesToAdd as unsigned integer) as unsigned integer
     var retval = this.PagesCount
     for i as unsigned integer=0 to pagesToAdd-1
-        var vaddr = PageAlloc(1)
+ '       var vaddr = PageAlloc(1)
  '       var paddr = current_context->Resolve(vaddr)
         var paddr = PMM_ALLOCPAGE(1)
         this.VMM_Context.MAP_PAGE(cptr(any ptr,(this.PagesCount shl 12) + ProcessAddress),paddr,VMM_FLAGS_USER_DATA)

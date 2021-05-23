@@ -69,7 +69,7 @@ SUB MAIN (mb_info as multiboot_info ptr)
     ConsoleNewLine()
     if (mode<>0) then
         EnterGraphicMode(mode)
-        Process.Load(@"SYS:/SYS/INIT.BIN",0)
+        Process.Load(@"SYS:/SYS/PIN.BIN",0)
         Thread.Ready()
     else
         ConsoleWriteLine(@"Cannot set graphic mode")

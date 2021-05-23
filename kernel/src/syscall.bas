@@ -442,9 +442,10 @@ function SysCallHandler(stack as IRQ_Stack ptr) as IRQ_Stack ptr
             var sem = cptr(Semaphore ptr, stack->EBX)
             sem->SemUnlock(CurrentThread)
         case &hE6 'load app
+            ConsoleWrite(@"Starting app : ")
+            ConsoleWriteLine(cptr(unsigned byte ptr,stack->EBX))
             var ctx = vmm_get_current_context()
             var p=Process.Load(cptr(unsigned byte ptr,stack->EBX),0)
-            
             ctx->Activate()
             if (p<>0) then 
                     stack->EAX = 1

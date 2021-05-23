@@ -12,6 +12,5 @@ sub MAIN(p as unsigned integer)
         ConsoleWriteNumber(i,10)
         ConsoleNewLine
         i+=1
-        WaitForEvent()
     loop
 end sub

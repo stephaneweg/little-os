@@ -15,7 +15,7 @@ end constructor
 destructor Process()
 	for i as unsigned integer = 0 to this.PagesCount -1
         var phys = this.VMM_Context.Resolve(cptr(any ptr,(i shl 12)+ProcessAddress))
-        PageFree(phys)
+        PMM_FREE(phys)
     next i
 end destructor
 

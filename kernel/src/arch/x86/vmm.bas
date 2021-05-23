@@ -40,8 +40,8 @@ sub VMM_INIT()
     current_context = @kernel_context
     
     kernel_context.p_dir[VMM_PAGETABLES_VIRT_START shr 22] = cuint(kernel_context.p_dir) or VMM_FLAG_PRESENT or VMM_FLAG_WRITEABLE
-    kernel_context.map_range(KSTART, KSTART, KEND, VMM_FLAGS_KERNEL_DATA)
-    'kernel_context.map_range(KSTART, KSTART, MemoryEnd, VMM_FLAGS_KERNEL_DATA)
+    'kernel_context.map_range(KSTART, KSTART, KEND, VMM_FLAGS_KERNEL_DATA)
+    kernel_context.map_range(KSTART, KSTART, MemoryEnd, VMM_FLAGS_KERNEL_DATA)
     kernel_context.map_page(cast(any ptr, &hB8000), cast(any ptr, &hB8000), VMM_FLAGS_KERNEL_DATA)
     kernel_context.v_dir = cast(uinteger ptr, (VMM_PAGETABLES_VIRT_START shr 22)*4096*1024 + (VMM_PAGETABLES_VIRT_START shr 22)*4096)
     kernel_context.map_page(cast(any ptr, RealModeAddr), cast(any ptr, RealModeAddr), VMM_FLAGS_KERNEL_DATA)

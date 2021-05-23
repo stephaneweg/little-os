@@ -90,27 +90,39 @@ function int_handler(stack as irq_stack ptr) as irq_stack ptr
             case &h0
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Divide by zero",0)
+                    ConsoleWrite(@"Divide by zero")
+                    asm cli
+                    do:loop
             case &h1
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"DEBUG",0)
+                    ConsoleWrite(@"DEBUG")
+                    asm cli
+                    do:loop
             case &h2
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"NON Maskable interupt",0)
+                    ConsoleWrite(@"NON Maskable interupt")
+                    asm cli
+                    do:loop
             case &h3
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Break point",0)
+                    ConsoleWrite(@"Break point")
+                    asm cli
+                    do:loop
             case &h4
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"OverFlow",0)
+                    ConsoleWrite(@"OverFlow")
+                    asm cli
+                    do:loop
             case &h5
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Bound range exceeded",0)
+                    ConsoleWrite(@"Bound range exceeded")
+                    asm cli
+                    do:loop
             case &h6
                     'kernel_context.ACTIVATE()
                     '
@@ -121,41 +133,56 @@ function int_handler(stack as irq_stack ptr) as irq_stack ptr
                     'ConsoleSetBackGround(4)
                     'ConsoleSetForeground(15)
                     'ConsoleClear()
-                    'ConsoleWrite(@"Invalid IPCode")
+                    ConsoleWrite(@"Invalid IPCode")
                     'ConsoleWriteTextAndDec(@"Code : ",stack->errCode,true)
                     'ConsoleWriteTextAndHex(@"Current Thread ID : ",SCheduler.CurrentRuningThread->ID,true)
                     'stack->DUMP()
-                    KERNEL_ERROR(@"INVALID OPCODE",0)
+                    'KERNEL_ERROR(@"INVALID OPCODE",0)
                     asm cli
                     do:loop
             case &h7
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Device not available",0)
+                    ConsoleWrite(@"Device not available")
+                    asm cli
+                    do:loop
             case &h8
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Double fault",0)
+                    ConsoleWrite(@"Double fault")
+                    asm cli
+                    do:loop
             case &hA
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Invalid TSS",0)
+                    ConsoleWrite(@"Invalid TSS")
+                    asm cli
+                    do:loop
             case &hB
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Segment not present",0)
+                    ConsoleWrite(@"Segment not present")
+                    asm cli
+                    do:loop
             case &hC
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Stack segment fault",0)
+                    ConsoleWrite(@"Stack segment fault")
+                    asm cli
+                    do:loop
             case &hD
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"General Protection fault",0)
+                    ConsoleWrite(@"General Protection fault")
+                    asm cli
+                    do:loop
             case &hE
                     VMM_EXIT()
                     VesaResetScreen()
+                    'KERNEL_ERROR(@"Page fault",0)
                     ConsoleWrite(@"Page fault")
+                    asm cli
+                    do:loop
                     ConsoleWriteTextAndDec(@"Code : ",stack->errCode,true)
                     dim acr2 as unsigned integer
                     asm
@@ -169,27 +196,39 @@ function int_handler(stack as irq_stack ptr) as irq_stack ptr
             case &h10
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Floating point exception",0)
+                    ConsoleWrite(@"Floating point exception")
+                    asm cli
+                    do:loop
             case &h11
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Alignment check",0)
+                    ConsoleWrite(@"Alignment check")
+                    asm cli
+                    do:loop
             case &h12
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Machine check",0)
+                    ConsoleWrite(@"Machine check")
+                    asm cli
+                    do:loop
             case &h13
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"SIMD Floating-point exception",0)
+                    ConsoleWrite(@"SIMD Floating-point exception")
+                    asm cli
+                    do:loop
             case &h14
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Virtualization exception",0)
+                    ConsoleWrite(@"Virtualization exception")
+                    asm cli
+                    do:loop
             case &h1E
                     VMM_EXIT()
                     VesaResetScreen()
-                    KERNEL_ERROR(@"Security exception",0)
+                    ConsoleWrite(@"Security exception")
+                    asm cli
+                    do:loop
             end select
         end if
     end if

@@ -1,8 +1,12 @@
 #include once "stdlib.bi"
 #include once "stdlib.bas"
 
-#include once "xapp.bi"
-#include once "xapp.bas"
+#include once "system.bi"
+#include once "system.bas"
+#include once "file.bi"
+#include once "file.bas"
+#include once "gdi.bi"
+#include once "gdi.bas"
 #include once "slab.bi"
 #include once "slab.bas"
 

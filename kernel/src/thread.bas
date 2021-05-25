@@ -1,11 +1,38 @@
 
 dim shared TotalThreadCount as unsigned integer
 dim shared ThreadIDS as unsigned integer
+dim shared CriticalCount as unsigned integer
+sub EnterCritical()
+    CriticalCount+=1
+    IRQ_DISABLE(0)
+end sub
+
+sub ExitCritical()
+    if (CriticalCount>0) then
+        CriticalCount-=1
+    end if
+    if (CriticalCount=0) then
+        IRQ_ENABLE(0)
+    end if
+end sub
+
+sub ThreadSleep()
+    asm
+        mov eax,&h04 '&hE2
+        int 0x30
+    end asm
+end sub
+
 sub Thread.InitManager()
+        CriticalCount = 0
         TotalThreadCount = 0
         ThreadIDS = 0
         IDLE_THREADRunCount = 0
         Scheduler.Constructor()
+    
+    
+        IDLE_Thread = Thread.CreateSys(@KERNEL_IDLE,MaxPriority)
+        PROCESS_TERMINATOR_THREAD = Thread.CreateSys(@PROCESS_TERMINATOR,0)
 end sub
 
 sub Thread.Ready()
@@ -16,8 +43,23 @@ sub Thread.Ready()
     
 end sub
 
+
+sub PROCESS_TERMINATOR(p as any ptr)
+    do
+        EnterCritical()
+        while (ProcessesToTerminate<>0)
+            var proc = ProcessesToTerminate
+            ProcessesToTerminate = proc->NextProcess
+            Process.Terminate(proc,0)
+        wend
+        ExitCritical()
+        ThreadSleep()
+    loop
+end sub
+
 sub KERNEL_IDLE(p as any ptr) 
     do
+        asm hlt
     loop
 end sub
 
@@ -61,6 +103,7 @@ function Thread.CreateSys(entryPoint as sub(p as any ptr),prio as unsigned integ
     
     th->IsSys = 1
 	th->InCritical = 0
+    th->RTCDelay = 0
     th->StackAddr = cuint(PageAlloc(1))
     th->ID = ThreadIDS
     th->Owner = 0
@@ -75,6 +118,7 @@ function Thread.CreateSys(entryPoint as sub(p as any ptr),prio as unsigned integ
     
     th->BasePriority = prio
     th->HasModalVisible = 0
+    th->RTCDelay = 0
     
     'configure the process's context
     var st = cptr(irq_stack ptr,th->SavedESP)

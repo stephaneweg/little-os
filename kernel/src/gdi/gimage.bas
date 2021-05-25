@@ -292,7 +292,26 @@ sub GImage.DrawRectangle(x1 as integer,y1 as integer,x2 as integer,y2 as integer
    DrawLine(x1,y2,x2,y2,c)
 end sub
 
-
+sub GImage.FillRectangleAlphaHalf(x1 as integer,y1 as integer,x2 as integer,y2 as integer,c as unsigned integer)
+      
+        dim r as unsigned integer = (c and &hFF0000) shr 16
+        dim g as unsigned integer = (c and &h00FF00) shr 8
+        dim b as unsigned integer = (c and &h0000FF)
+        for _y as integer=y1 to y2
+            
+            for _x as integer = x1 to x2
+                if _x>=0 and _x<this._width and _y>=0 and _y<this._height then
+                    
+                    dim o as unsigned integer = _y * this._width + _x
+                    dim l as unsigned integer= this._buffer[o] and &h000000FF
+                    dim rr as unsigned integer = ((r*l) \ 255) and &hFF  
+                    dim gg as unsigned integer = ((g*l) \ 255) and &hFF
+                    dim bb as unsigned integer = ((b*l)\255) and &hFF
+                    this._buffer[o] = &hFF000000 or (rr shl 16) or (gg shl 8) or (bb)
+                end if
+            next
+        next
+end sub
 
 sub GImage.FillRectangleAlpha(x1 as integer,y1 as integer,x2 as integer,y2 as integer, c as unsigned integer)
     dim sx1 as integer

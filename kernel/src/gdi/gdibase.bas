@@ -362,24 +362,26 @@ Function GDIBase.HandleMouse(_mx as integer,_my as integer, _mb as integer) as i
        end if
     end if
     
-    dim ExitedFrom as GDIBase ptr = 0
-    GDIForeachRev(child,this)
-		if (child->_visible) then
-			if (handled<>0) then exit while
-			if (MouseX>=child->_absoluteLeft and _
-				MouseX<=child->_absoluteLeft+child->_width and _
-				MouseY>=child->_absoluteTop and _
-				MouseY<=child->_absoluteTop + child->_height) then
-				handled = child->HandleMouse(MouseX-child->_absoluteLeft,MouseY-child->_absoluteTop,_mb)
-				if (handled) then
-					if (child<>PrevHandledChild and PrevHandledChild<>0) then
-						ExitedFrom = PrevHandledChild
+	dim ExitedFrom as GDIBase ptr = 0
+	if (this.Draging = 0) then
+		GDIForeachRev(child,this)
+			if (child->_visible) then
+				if (handled<>0) then exit while
+				if (MouseX>=child->_absoluteLeft and _
+					MouseX<=child->_absoluteLeft+child->_width and _
+					MouseY>=child->_absoluteTop and _
+					MouseY<=child->_absoluteTop + child->_height) then
+					handled = child->HandleMouse(MouseX-child->_absoluteLeft,MouseY-child->_absoluteTop,_mb)
+					if (handled) then
+						if (child<>PrevHandledChild and PrevHandledChild<>0) then
+							ExitedFrom = PrevHandledChild
+						end if
+						PrevHandledChild = child
 					end if
-					PrevHandledChild = child
-				end if
-			end if 
-		end if
-    GDIEndForeachRev(child)
+				end if 
+			end if
+		GDIEndForeachRev(child)
+	end if
     
     
     if (not handled) then

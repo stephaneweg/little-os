@@ -2,6 +2,11 @@
 static shared Result(0 to 2047) as unsigned byte
 static shared Result2(0 to 2047) as unsigned byte
 
+function min(v1 as unsigned integer,v2 as unsigned integer) as unsigned integer
+    if (v1<v2) then return v1
+    return v2
+end function
+
 function sqrt(d as double) as double
 	dim result as double = d
     dim i as integer

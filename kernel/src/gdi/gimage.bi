@@ -54,6 +54,7 @@ TYPE GImage extends TObject
     declare sub DrawLine(x1 as integer,y1 as integer,x2 as integer,y2 as integer,c as unsigned integer)
     declare sub FillRectangle(x1 as integer,y1 as integer,x2 as integer,y2 as integer, c as unsigned integer)
     declare sub FillRectangleAlpha(x1 as integer,y1 as integer,x2 as integer,y2 as integer, c as unsigned integer)
+    declare sub FillRectangleAlphaHalf(x1 as integer,y1 as integer,x2 as integer,y2 as integer,c as unsigned integer)
     declare sub DrawRectangle(x1 as integer,y1 as integer,x2 as integer,y2 as integer, c as unsigned integer)
     declare sub PutOtherRaw(src as unsigned integer ptr,_w as integer,_h as integer,x as integer,y as integer)
     declare sub PutOther(src as GImage ptr,x as integer,y as integer,transparent as integer)

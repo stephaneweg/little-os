@@ -32,6 +32,22 @@ function Skin.Create(path as unsigned byte ptr,count as unsigned integer,lw as i
     end if
     return 0
 end function
+
+sub Skin.ApplyColor(c as unsigned integer,all as unsigned integer)
+    if (all=0) then
+        for i as unsigned integer = 0 to this.partCount-1
+            var _minY = this.SkinHeight * i
+            var _maxY =  _minY+this.SkinHeight -1
+            
+            this.Image->FillRectangleAlphaHalf(0,_minY,this.LeftWidth-1,_maxY,c)
+            this.Image->FillRectangleAlphaHalf(this.SkinWidth-this.RightWidth+1,_minY,this.SkinWidth-1,_maxY,c)
+            this.Image->FillRectangleAlphaHalf(this.LeftWidth,_minY,this.SkinWidth-this.RightWidth,_minY+this.TopHeight,c)
+            this.Image->FillRectangleAlphaHalf(this.LeftWidth,_maxY-this.bottomHeight+1,this.SkinWidth-this.RightWidth,_maxY,c)
+        next i
+    else
+        this.Image->FillRectangleAlphaHalf(0,0,this.Image->_width-1,this.Image->_height-1,c)
+    end if
+end sub
     
 sub Skin.DrawOn(target as GImage ptr,num as unsigned integer,x as integer,y as integer,w as integer,h as integer,c as unsigned integer,transparent as integer)
     dim i as integer
@@ -51,8 +67,8 @@ sub Skin.DrawOn(target as GImage ptr,num as unsigned integer,x as integer,y as i
     end if
     
     if (oHeight>0 and oWidth>0) then
-        var p = (sourceY+(SkinHeight shr 1) * skinWidth)+(skinWidth shr 1)
-        target->FillRectangle(x+this.LeftWidth,y+this.TopHeight,x+w-this.RightWidth-1,y+h-this.BottomHeight-1,this.Image->_buffer[p])
+        var p = ((sourceY+(SkinHeight shr 1)) * skinWidth)+(skinWidth shr 1)
+        target->FillRectangle(x+this.LeftWidth,y+this.TopHeight,x+w-this.RightWidth-1,y+h-this.BottomHeight-1,this.Image->_buffer[p] )
     end if
     
     if ((middleWidth>0) and (oWidth>0)) then

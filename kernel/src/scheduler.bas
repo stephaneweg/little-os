@@ -34,23 +34,42 @@ function ThreadQueue.Dequeue() as Thread ptr
     return t
 end function
 
+
+function ThreadQueue.RTCDequeue() as Thread ptr
+    dim t as Thread ptr =  this.FirstThread
+    dim selected as Thread ptr = 0
+    while (t<>0)
+            if (t->RTCDelay>0) then
+                t->RTCDelay-=1
+            end if
+            if (t->RTCDelay=0) then selected = t
+            t=t->NextThreadQueue
+    wend
+    if (selected<>0) then this.Remove(selected)
+    return selected
+end function
+
 sub ThreadQueue.Remove(t as Thread ptr)
-    
+    var removed = 0
     if (t = this.FirstThread) then
         this.FirstThread = t->NextThreadQueue
+        removed = 1
     else
         dim th as Thread ptr =  this.FirstThread 
         while th<>0
             if (th->NextThreadQueue = t) then
                 th->NextThreadQueue = t->NextThreadQueue
                 if (th->NextThreadQueue=0) then this.LastThread = th
+                removed = 1
                 exit while
             end if
             th=>th->NextThreadQueue
         wend
     end if
-    if (this.FirstThread =0) then this.LastThread = 0
-    t->NextThreadQueue = 0
+    if (removed=1) then
+        if (this.FirstThread =0) then this.LastThread = 0
+        t->NextThreadQueue = 0
+    end if
 end sub
 
 constructor ThreadScheduler()
@@ -58,6 +77,7 @@ constructor ThreadScheduler()
     for i = 0 to MaxPriority
         PriorityQueue(i).Constructor()
     next
+    RTCQueue.Constructor()
     CurrentRuningThread = 0
 	RemovedThread = 0
 end constructor
@@ -68,6 +88,7 @@ sub ThreadScheduler.RemoveThread(t as Thread ptr)
 	for i=0 to MaxPriority
 		PriorityQueue(i).Remove(t)
 	next i
+    RTCQueue.Remove(t)
 	if (CurrentRuningThread=t) then
 		RemovedThread = t
 	end if
@@ -104,6 +125,17 @@ function ThreadScheduler.Switch(_stack as IRQ_Stack ptr,newThread as Thread ptr)
 end function
 
 
+sub ThreadScheduler.SetThreadRealTime(t as Thread ptr,delay as unsigned integer)
+    if (t->State=ThreadState.Ready) then exit sub
+    if (delay=0) then 
+        SetThreadReady(t,t->BasePriority)
+        exit sub
+    end if
+    t->RTCDelay = delay
+    RTCQueue.Enqueue(t)
+    t->Priority= t->BasePriority
+    t->State=ThreadState.Ready
+end sub
 
 sub ThreadScheduler.SetThreadReady(t as Thread ptr,priority as unsigned integer)
     if (t->State=ThreadState.Ready) then exit sub
@@ -168,15 +200,18 @@ function ThreadScheduler.Schedule() as Thread ptr
         RemovedThread = 0
     end if
 	
-    for i=0 to MaxPriority
-        th = PriorityQueue(i).Dequeue()
-        if (th<>0) then
-            for j = i+1 to MaxPriority
-                IncreasePriority(j)
-            next
-            exit for
-        end if
-    next
+    th = RTCQueue.RTCDequeue()
+    if (th=0) then
+        for i=0 to MaxPriority
+            th = PriorityQueue(i).Dequeue()
+            if (th<>0) then
+                for j = i+1 to MaxPriority
+                    IncreasePriority(j)
+                next
+                exit for
+            end if
+        next
+    end if
     
 	
 	

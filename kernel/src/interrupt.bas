@@ -179,10 +179,12 @@ function int_handler(stack as irq_stack ptr) as irq_stack ptr
             case &hE
                     VMM_EXIT()
                     VesaResetScreen()
-                    'KERNEL_ERROR(@"Page fault",0)
+                    ConsoleSetBackGround(4)
+                    ConsoleSetForeground(15)
+                    ConsoleClear()
+                    
                     ConsoleWrite(@"Page fault")
-                    asm cli
-                    do:loop
+                   
                     ConsoleWriteTextAndDec(@"Code : ",stack->errCode,true)
                     dim acr2 as unsigned integer
                     asm
@@ -192,6 +194,7 @@ function int_handler(stack as irq_stack ptr) as irq_stack ptr
                     ConsoleWriteTextAndHex(@"CR2 : ",acr2,true)
                     ConsoleWriteTextAndHex(@"PHYS : ",cuint(current_context->RESOLVE(cptr(any ptr,acr2 ))),true)
                     ConsoleWriteTextAndHex(@"Current Thread ID : ",SCheduler.CurrentRuningThread->ID,true)
+                    asm cli
                     do:loop
             case &h10
                     VMM_EXIT()

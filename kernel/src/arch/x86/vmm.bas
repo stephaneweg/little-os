@@ -8,28 +8,6 @@
 #define GET_PAGETABLE_INDEX(x) ((cuint(x) shr 12) and &h3FF)
 #define num_pages(n) (((n + &hFFF) and (&hFFFFF000)) shr 12)
 
-'' create_context () creates and clears space for a page-directory
-sub VMMContext.Initialize ()
-    this.version    = 0
-    FirstVMMPage = ((cuint(KEND) shr 22)+1) shl 22
-	this.p_dir  = PMM_ALLOCPAGE(1)
-	this.v_dir  = vmm_kernel_automap(this.p_dir, PAGE_SIZE,VMM_FLAGS_KERNEL_DATA)
-	memset32(this.v_dir, 0, PAGE_SIZE_DWORD)
-
-	'' copy the kernel address space
-	this.sync()
-
-	'' pagetables need to be accessible
-	this.v_dir[VMM_PAGETABLES_VIRT_START shr 22] = cuint(this.p_dir) or VMM_FLAG_PRESENT or VMM_FLAG_WRITEABLE
-end sub
-
-sub VMMContext.Sync()
-	if (this.version < latest_context->version) then
-		memcpy32(this.v_dir, latest_context->v_dir, &hff)'3FC bytes (1020) = 255 dword
-        this.version = latest_context->version
-	end if
-	latest_context = @this
-end sub
 
 sub VMM_INIT()
     ConsoleWrite(@"Initializing Virtual Memory Management")
@@ -41,7 +19,8 @@ sub VMM_INIT()
     
     kernel_context.p_dir[VMM_PAGETABLES_VIRT_START shr 22] = cuint(kernel_context.p_dir) or VMM_FLAG_PRESENT or VMM_FLAG_WRITEABLE
     'kernel_context.map_range(KSTART, KSTART, KEND, VMM_FLAGS_KERNEL_DATA)
-    kernel_context.map_range(KSTART, KSTART, MemoryEnd, VMM_FLAGS_KERNEL_DATA)
+    kernel_context.map_range(KSTART, KSTART,cptr(any ptr,min(cuint( MemoryEnd),ProcessAddress)), VMM_FLAGS_KERNEL_DATA)
+    'kernel_context.map_range(KSTART, KSTART, VMM_IDENTITY_MEMORY_END, VMM_FLAGS_KERNEL_DATA)
     kernel_context.map_page(cast(any ptr, &hB8000), cast(any ptr, &hB8000), VMM_FLAGS_KERNEL_DATA)
     kernel_context.v_dir = cast(uinteger ptr, (VMM_PAGETABLES_VIRT_START shr 22)*4096*1024 + (VMM_PAGETABLES_VIRT_START shr 22)*4096)
     kernel_context.map_page(cast(any ptr, RealModeAddr), cast(any ptr, RealModeAddr), VMM_FLAGS_KERNEL_DATA)
@@ -53,6 +32,36 @@ sub VMM_INIT()
 end sub
 
 
+sub VMM_EXIT()
+    
+    ConsoleWrite(@"Disabling paging")
+    asm
+        mov ebx,cr4
+        and ebx, &hFFFFFF7F
+        mov cr4,ebx
+        
+        mov ebx,cr0
+        and ebx, &h7FFFFFFF
+        mov cr0,ebx
+    end asm
+    paging_active = 0
+    ConsolePrintOK()
+    ConsoleNewLine()
+end sub
+
+function vmm_get_current_context () as VMMContext ptr
+	return current_context
+end function
+
+
+function vmm_kernel_automap (p_start as any ptr, size as unsigned integer, flags as unsigned integer ) as any ptr
+	return vmm_get_current_context()->automap(p_start, size, VMM_IDENTITY_MEMORY_END, &h40000000, flags)
+end function
+
+
+sub vmm_kernel_unmap (v_start as any ptr, size as uinteger)
+	vmm_get_current_context()->unmap_range(v_start, num_pages(size))
+end sub
 
 '' loads the pagedir into cr3 and activates paging
 sub vmm_init_local ()
@@ -80,6 +89,43 @@ sub vmm_init_local ()
     ConsoleNewLine()
 end sub
 
+destructor VMMContext()
+    for i as unsigned integer = 256 to 1023
+        if (( this.v_dir[i] and VMM_FLAG_PRESENT) = VMM_FLAG_PRESENT) then
+            dim pt as unsigned integer ptr = this.get_pagetable(i)
+            if (pt<>0) then
+                    PMM_FREEPAGE(pt)
+            end if
+        end if
+    next i
+    PMM_FREEPAGE(this.P_dir)
+end destructor
+
+'' create_context () creates and clears space for a page-directory
+sub VMMContext.Initialize ()
+    this.version    = 0
+    FirstVMMPage = ((cuint(KEND) shr 22)+1) shl 22
+	this.p_dir  = PMM_ALLOCPAGE(1)
+	this.v_dir  = vmm_kernel_automap(this.p_dir, PAGE_SIZE,VMM_FLAGS_KERNEL_DATA)
+	memset32(this.v_dir, 0, PAGE_SIZE_DWORD)
+
+	'' copy the kernel address space
+	this.sync()
+
+	'' pagetables need to be accessible
+	this.v_dir[VMM_PAGETABLES_VIRT_START shr 22] = cuint(this.p_dir) or VMM_FLAG_PRESENT or VMM_FLAG_WRITEABLE
+end sub
+
+
+sub VMMContext.Sync()
+	if (this.version < latest_context->version) then
+		memcpy32(this.v_dir, latest_context->v_dir, &hff)'3FC bytes (1020) = 255 dword
+        this.version = latest_context->version
+	end if
+	latest_context = @this
+end sub
+
+
 
 sub VMMContext.Activate()
     if (current_context<>@this) then
@@ -95,36 +141,6 @@ sub VMMContext.Activate()
     end if
 end sub
 
-sub VMM_EXIT()
-    
-    ConsoleWrite(@"Disabling paging")
-    asm
-        mov ebx,cr4
-        and ebx, &hFFFFFF7F
-        mov cr4,ebx
-        
-        mov ebx,cr0
-        and ebx, &h7FFFFFFF
-        mov cr0,ebx
-    end asm
-    paging_active = 0
-    ConsolePrintOK()
-    ConsoleNewLine()
-end sub
-
-function vmm_get_current_context () as VMMContext ptr
-	return current_context
-end function
-
-
-function vmm_kernel_automap (p_start as any ptr, size as unsigned integer, flags as unsigned integer ) as any ptr
-	return vmm_get_current_context()->automap(p_start, size, PAGE_SIZE, &h40000000, flags)
-end function
-
-
-sub vmm_kernel_unmap (v_start as any ptr, size as uinteger)
-	vmm_get_current_context()->unmap_range(v_start, num_pages(size))
-end sub
 
 function VMMContext.get_pagetable (index as unsigned integer) as unsigned integer ptr
 	dim pdir as unsigned integer ptr =  this.v_dir

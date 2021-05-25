@@ -72,7 +72,7 @@ end function
 'it will fre the pages at this address
 'the parameter is the address of the first page
 'in the bitmap , the value is the count of contigous pages allocated
-function PMM_FREE(addr as any ptr) as unsigned integer
+function PMM_FREEPAGE(addr as any ptr) as unsigned integer
     dim obase as unsigned integer = cast(unsigned integer,addr) shr 12
     dim pagesCount as unsigned integer = PageBitmap(obase)
     

@@ -109,7 +109,7 @@ sub GenBackground()
         
         dim i as unsigned integer
         dim j as unsigned integer
-        dim m as integer=12
+        dim m as integer=8
         dim ptArray as unsigned integer ptr=KAlloc(sizeof(unsigned integer)*(m*2))
         for i=0 to m-1
             ptArray[i*2]=NextRandomNumber(0,mx)
@@ -156,7 +156,7 @@ sub GenBackground()
                     if (sum<minDistance) then minDistance=sum
                 next i
                 result=minDistance
-                var ccc=computeColor(&hFF0000,result and 255)
+                var ccc=computeColor(&h00AA00,result and 255)
                 
                 for i= 0 to adiv -1
                     for j=0 to adiv-1

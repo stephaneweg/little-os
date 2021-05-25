@@ -22,7 +22,7 @@ const null=0
   RCW()
 #endmacro
 
-
+declare function min(v1 as unsigned integer,v2 as unsigned integer) as unsigned integer
 declare function sqrt(d as double) as double
 declare function fcos(d as double) as double
 declare function fsin(d as double) as double

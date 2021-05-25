@@ -4,10 +4,11 @@ declare sub MAIN (p as any ptr)
 #include once "stdlib.bi"
 #include once "stdlib.bas"
 
-#include once "xapp.bi"
-#include once "xapp.bas"
-#include once "slab.bi"
-#include once "slab.bas"
+
+#include once "system.bi"
+#include once "system.bas"
+#include once "gdi.bi"
+#include once "gdi.bas"
 
 declare sub BTNPlusClick(btn as unsigned integer,parm as unsigned integer)
 declare sub BTNMinusClick(btn as unsigned integer,parm as unsigned integer)

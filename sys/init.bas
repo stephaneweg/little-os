@@ -2,18 +2,15 @@
 #include once "stdlib.bas"
 
 
-#include once "xapp.bi"
-#include once "xapp.bas"
-#include once "slab.bi"
-#include once "slab.bas"
+#include once "system.bi"
+#include once "system.bas"
+#include once "file.bi"
+#include once "file.bas"
 
 dim shared fline(0 to 255) as unsigned byte
 
 dim shared entries(0 to 50) as VFSDirectoryEntry
 sub MAIN(p as any ptr) 
-    dim buttonWidth as integer = 150
-    
-    SlabINIT()
 
     dim f as unsigned integer = FileOpen(@"SYS:/ETC/INIT.CFG")
     while not FileEOF(f)

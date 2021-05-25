@@ -2,6 +2,8 @@ TYPE VMMContext field =1
     p_dir as unsigned integer ptr
     v_dir as unsigned integer ptr
     version as unsigned integer
+    declare destructor()
+    
     declare sub Initialize()
     
     declare sub sync()
@@ -25,6 +27,8 @@ end TYPE
 #define VMM_PAGE_MASK (&hFFFFF000)
 #define VMM_FLAGS_KERNEL_DATA  (VMM_FLAG_PRESENT or VMM_FLAG_WRITEABLE or VMM_FLAG_GLOBAL)
 #define VMM_FLAGS_USER_DATA    (VMM_FLAG_PRESENT or VMM_FLAG_WRITEABLE or VMM_FLAG_USER)
+
+#define VMM_IDENTITY_MEMORY_END 1024*1024*32
 declare sub VMM_INIT()
 declare sub vmm_init_local ()
 declare sub VMM_EXIT()

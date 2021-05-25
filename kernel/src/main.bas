@@ -59,10 +59,13 @@ SUB MAIN (mb_info as multiboot_info ptr)
     INIT_MOUSE()
     
     
-    IRQ_ATTACH_HANDLER(&h31,@SyscallHandler)
+    IRQ_ATTACH_HANDLER(&h30,@Syscall30Handler)
+    IRQ_ATTACH_HANDLER(&h31,@Syscall31Handler)
+    IRQ_ATTACH_HANDLER(&h32,@Syscall32Handler)
+    IRQ_ATTACH_HANDLER(&h33,@Syscall33Handler)
     Thread.InitManager()
+    Process.InitEngine()
     
-    IDLE_Thread = Thread.CreateSys(@KERNEL_IDLE,MaxPriority)
     VMM_EXIT()
     var mode = VesaProbe()
     vmm_init_local()
@@ -84,9 +87,14 @@ end sub
 
 
 sub EnterGraphicMode(mode as unsigned integer)
-    WindowSkin = Skin.Create(@"SYS:/RES/WINDOW.BMP",1,7,7,32,7)
+    dim winColor as unsigned integer=&h4488FF'&hFFC90E
+    
+    WindowSkin = Skin.Create(@"SYS:/RES/WINGS.BMP",1,7,7,32,7)
 	ButtonSkin = Skin.Create(@"SYS:/RES/BUTTON.BMP",3,12,12,12,12)
-	WindowCloseBtn = GImage.LoadFromBitmap(@"SYS:/RES/CLOSEBTN.BMP")
+	WindowCloseBtn = GImage.LoadFromBitmap(@"SYS:/RES/CLOSEBGS.BMP")
+    
+    WindowSkin->ApplyColor(wincolor,0)
+    WindowCloseBtn->FillRectangleAlphaHalf(0,0,WindowCloseBtn->_width-1,WindowCloseBtn->_height-1,wincolor)
     FontManager.Init()
     
     
@@ -101,22 +109,11 @@ end sub
 
 sub GuiLoop(p as any ptr)
     do
-        IRQ_DISABLE(0)
-		GuiThread->InCritical = 1
+        EnterCritical()
         ScreenLoop()
-		if (ProcessToTerminate<>0) then
-			Process.Terminate(ProcessToTerminate,0)
-			ProcessToTerminate = 0
-		end if
-		GuiThread->InCritical = 0
-        IRQ_ENABLE(0)
-        
-        
-		'wait thread
-		asm
-            mov eax,&hFF '&hE2
-            int 0x31
-        end asm
+        ExitCritical()
+		ThreadSleep()
+		
     loop
 end sub
 

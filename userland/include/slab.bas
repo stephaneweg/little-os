@@ -23,7 +23,6 @@ sub SlabInit()
     if (not didAlloc) then
         MessageBoxShow(@"Could not initalize Slab memory management",@"Memory management")
     end if
-    ConsoleWriteLine(@"Slab allocator initialized")
 end sub
 
 function SlabMetaData.Alloc(size as unsigned integer) as any ptr
@@ -54,7 +53,7 @@ function SlabMetaData.Alloc(size as unsigned integer) as any ptr
     
     result = newSlab->Alloc(size)
     if (result=0) then
-        ConsoleWriteLine(@"The slab could not allocate memory")
+        MessageBoxShow(@"The slab could not allocate memory",@"Memory management")
     end if
     
     return result
@@ -66,7 +65,7 @@ sub SlabMetaData.Free(addr as any ptr)
         if (current->Free(addr)) = 1 then return
         current=>Current->NextSlab
     wend
-    ConsoleWriteLine(@"The address is not part of a slab")
+    MessageBoxShow(@"The address is not part of a slab",@"Memory management")
 end sub
         
 sub Slab.Init(isize as unsigned integer)

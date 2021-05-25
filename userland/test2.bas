@@ -1,5 +1,5 @@
-#include "xapp.bi"
-#include "xapp.bas"
+#include "console.bi"
+#include "console.bas"
 
 
 declare sub MAIN(p as unsigned integer)

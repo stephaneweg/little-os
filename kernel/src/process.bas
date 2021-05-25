@@ -1,6 +1,6 @@
 sub Process.InitEngine()
         FirstProcess = 0
-		ProcessToTerminate = 0
+        ProcessesToTerminate = 0
 end sub
 
 constructor Process()
@@ -15,7 +15,7 @@ end constructor
 destructor Process()
 	for i as unsigned integer = 0 to this.PagesCount -1
         var phys = this.VMM_Context.Resolve(cptr(any ptr,(i shl 12)+ProcessAddress))
-        PMM_FREE(phys)
+        PMM_FREEPAGE(phys)
     next i
 end destructor
 
@@ -44,8 +44,8 @@ end function
 function Process.SBRK(pagesToAdd as unsigned integer) as unsigned integer
     var retval = this.PagesCount
     for i as unsigned integer=0 to pagesToAdd-1
- '       var vaddr = PageAlloc(1)
- '       var paddr = current_context->Resolve(vaddr)
+        'var vaddr = PageAlloc(1)
+        'var paddr = current_context->Resolve(vaddr)
         var paddr = PMM_ALLOCPAGE(1)
         this.VMM_Context.MAP_PAGE(cptr(any ptr,(this.PagesCount shl 12) + ProcessAddress),paddr,VMM_FLAGS_USER_DATA)
         this.PagesCount+=1
@@ -60,7 +60,23 @@ sub Process.AddThread(t as any ptr)
 end sub
 
 
-
+sub Process.RequestTerminateProcess(app as Process ptr)
+    var th=cptr(Thread ptr,app->Threads)
+    while(th<>0)
+        th->State = ThreadState.Terminating
+        Scheduler.RemoveThread(th)
+        th=th->NextThreadProc
+    wend
+    app->NextProcess = ProcessesToTerminate
+    ProcessesToTerminate = app
+    
+     if (PROCESS_TERMINATOR_THREAD<>0) then
+        if (PROCESS_TERMINATOR_THREAD->State = ThreadState.waiting) then Scheduler.SetThreadReady(PROCESS_TERMINATOR_THREAD,0)
+    end if
+end sub
+    
+    
+    
 
 sub Process.Terminate(app as Process ptr,args as any ptr)
     'todo:
@@ -91,5 +107,6 @@ sub Process.Terminate(app as Process ptr,args as any ptr)
     'clear the threads
     'destroy all gui items that are from the app
     app->Destructor()
+    
     KFree(app)
 end sub

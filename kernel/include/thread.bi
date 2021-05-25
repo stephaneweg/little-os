@@ -7,6 +7,7 @@ enum ThreadState
     waitingForMessage = 5
     WaitingSemaphore = 6
     WaitingDialog = 7
+    Terminating = 127
 end enum
 
 type Thread field=1
@@ -16,7 +17,7 @@ type Thread field=1
     ID as unsigned integer
     Owner as Process ptr
     VMM_Context as VMMContext ptr
-    
+    RTCDelay as unsigned integer
     State as ThreadState
     
     NextThreadQueue as Thread ptr
@@ -41,7 +42,13 @@ type Thread field=1
     declare function DoWait(stack as IRQ_Stack ptr) as IRQ_Stack ptr
 end type
 
+declare sub PROCESS_TERMINATOR(p as any ptr)
 declare sub KERNEL_IDLE(p as any ptr) 
 declare function int20Handler(stack as irq_stack ptr) as irq_stack ptr
 dim shared IDLE_THREAD as Thread ptr
+dim shared PROCESS_TERMINATOR_THREAD as Thread ptr
 dim shared IDLE_THREADRunCount as unsigned integer
+
+declare sub EnterCritical()
+declare sub ExitCritical()
+declare sub ThreadSleep()

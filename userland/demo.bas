@@ -2,8 +2,10 @@
 #include once "stdlib.bi"
 #include once "stdlib.bas"
 
-#include once "xapp.bi"
-#include once "xapp.bas"
+#include once "system.bi"
+#include once "system.bas"
+#include once "gdi.bi"
+#include once "gdi.bas"
 
 
 dim shared mainWin as unsigned integer

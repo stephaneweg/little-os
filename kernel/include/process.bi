@@ -21,6 +21,8 @@ TYPE Process field =1
     declare static sub InitEngine()
     declare static function Load(path as unsigned byte ptr,args as any ptr) as Process ptr
     declare static function LoadX(path as unsigned byte ptr,args as any ptr) as Process ptr
+    
+    declare static sub RequestTerminateProcess(app as Process ptr)
     declare static sub Terminate(app as Process ptr,args as any ptr)
     
     declare constructor()
@@ -33,4 +35,4 @@ end type
 
 #define ProcessAddress &h40000000
 dim shared FirstProcess as Process ptr
-dim shared ProcessToTerminate as Process ptr
+dim shared ProcessesToTerminate as Process ptr
